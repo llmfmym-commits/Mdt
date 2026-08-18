@@ -15,126 +15,60 @@ jobs:
 
     steps:
 
-      # -------------------------------------------------
-      # 1. Checkout
-      # -------------------------------------------------
       - name: Checkout
         uses: actions/checkout@v4
 
-
-      # -------------------------------------------------
-      # 2. Java 21
-      # -------------------------------------------------
       - name: Setup Java 21
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
 
-
-      # -------------------------------------------------
-      # 3. Node
-      # -------------------------------------------------
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 22
 
-
-      # -------------------------------------------------
-      # 4. Install npm packages
-      # -------------------------------------------------
       - name: Install dependencies
         run: npm install
 
-
-      # -------------------------------------------------
-      # 5. Create Android project
-      # -------------------------------------------------
       - name: Add Android
         run: npx cap add android
 
-
-      # -------------------------------------------------
-      # 6. Sync web project
-      # -------------------------------------------------
       - name: Sync Capacitor
         run: npx cap sync android
 
-
-      # -------------------------------------------------
-      # 7. Configure Tapsell SDK
-      # -------------------------------------------------
-      - name: Configure Tapsell
-        env:
-          TAPSELL_APP_KEY: ${{ secrets.TAPSELL_APP_KEY }}
-          TAPSELL_ZONE_ID: ${{ secrets.TAPSELL_ZONE_ID }}
-
+      - name: Add Tapsell SDK
         run: |
-
           python3 <<'PY'
-
-          import os
           from pathlib import Path
 
-          app_key = os.environ["TAPSELL_APP_KEY"]
-          zone_id = os.environ["TAPSELL_ZONE_ID"]
-
           gradle = Path("android/app/build.gradle")
-
           text = gradle.read_text()
-
-          # ---------------------------------------------
-          # Add BuildConfig values
-          # ---------------------------------------------
-
-          build_config = f'''
-                  buildConfigField "String", "TAPSELL_APP_KEY", "\\"{app_key}\\"
-                  buildConfigField "String", "TAPSELL_ZONE_ID", "\\"{zone_id}\\""
-          '''
-
-          if "TAPSELL_APP_KEY" not in text:
-
-              text = text.replace(
-                  "defaultConfig {",
-                  "defaultConfig {" + build_config,
-                  1
-              )
-
-
-          # ---------------------------------------------
-          # Add Tapsell dependency
-          # ---------------------------------------------
 
           dependency = """
               implementation 'ir.tapsell.plus:tapsell-plus-sdk-android:2.3.3'
           """
 
           if "tapsell-plus-sdk-android" not in text:
-
               text = text.replace(
                   "dependencies {",
                   "dependencies {" + dependency,
                   1
               )
 
-
           gradle.write_text(text)
-
           PY
 
-
-      # -------------------------------------------------
-      # 8. Create Tapsell Capacitor Plugin
-      # -------------------------------------------------
-      - name: Create Tapsell Java Plugin
+      - name: Create Tapsell Plugin
+        env:
+          TAPSELL_APP_KEY: ${{ secrets.TAPSELL_APP_KEY }}
+          TAPSELL_ZONE_ID: ${{ secrets.TAPSELL_ZONE_ID }}
         run: |
 
           mkdir -p android/app/src/main/java/com/allcalc/app
 
-
           cat > android/app/src/main/java/com/allcalc/app/TapsellPlugin.java <<'JAVA'
-
           package com.allcalc.app;
 
           import androidx.annotation.NonNull;
@@ -150,133 +84,100 @@ jobs:
           import ir.tapsell.plus.model.TapsellPlusAdModel;
           import ir.tapsell.plus.model.TapsellPlusErrorModel;
 
-
           @CapacitorPlugin(name = "Tapsell")
           public class TapsellPlugin extends Plugin {
 
-
               private PluginCall pendingCall;
-
 
               @Override
               public void load() {
-
                   super.load();
 
                   TapsellPlus.initialize(
-                          getContext(),
-                          BuildConfig.TAPSELL_APP_KEY,
-                          null
+                      getContext(),
+                      BuildConfig.TAPSELL_APP_KEY,
+                      null
                   );
               }
-
 
               @com.getcapacitor.PluginMethod
               public void showRewarded(PluginCall call) {
 
                   pendingCall = call;
 
-
                   TapsellPlus.requestRewardedVideoAd(
+                      getActivity(),
+                      BuildConfig.TAPSELL_ZONE_ID,
+                      new AdRequestCallback() {
 
-                          getActivity(),
+                          @Override
+                          public void response(
+                              TapsellPlusAdModel adModel
+                          ) {
 
-                          BuildConfig.TAPSELL_ZONE_ID,
+                              TapsellPlus.showRewardedVideoAd(
+                                  getActivity(),
+                                  adModel.getResponseId(),
+                                  new AdShowListener() {
 
-                          new AdRequestCallback() {
+                                      @Override
+                                      public void onOpened(
+                                          TapsellPlusAdModel ad
+                                      ) {
+                                      }
 
+                                      @Override
+                                      public void onClosed(
+                                          TapsellPlusAdModel ad
+                                      ) {
+                                      }
 
-                              @Override
-                              public void response(
-                                      TapsellPlusAdModel adModel
-                              ) {
+                                      @Override
+                                      public void onRewarded(
+                                          TapsellPlusAdModel ad
+                                      ) {
 
-                                  String responseId =
-                                          adModel.getResponseId();
+                                          if (pendingCall != null) {
 
+                                              JSObject result =
+                                                  new JSObject();
 
-                                  TapsellPlus.showRewardedVideoAd(
+                                              result.put(
+                                                  "rewarded",
+                                                  true
+                                              );
 
-                                          getActivity(),
+                                              pendingCall.resolve(
+                                                  result
+                                              );
 
-                                          responseId,
-
-                                          new AdShowListener() {
-
-
-                                              @Override
-                                              public void onOpened(
-                                                      TapsellPlusAdModel ad
-                                              ) {
-
-                                                  // تبلیغ باز شد
-                                              }
-
-
-                                              @Override
-                                              public void onClosed(
-                                                      TapsellPlusAdModel ad
-                                              ) {
-
-                                                  // تبلیغ بسته شد
-                                              }
-
-
-                                              @Override
-                                              public void onRewarded(
-                                                      TapsellPlusAdModel ad
-                                              ) {
-
-                                                  if (pendingCall != null) {
-
-                                                      JSObject result =
-                                                              new JSObject();
-
-                                                      result.put(
-                                                              "rewarded",
-                                                              true
-                                                      );
-
-                                                      pendingCall.resolve(
-                                                              result
-                                                      );
-
-                                                      pendingCall = null;
-                                                  }
-                                              }
-
-
-                                              @Override
-                                              public void onError(
-                                                      TapsellPlusErrorModel error
-                                              ) {
-
-                                                  reject(
-                                                          "Tapsell error: "
-                                                          + error.toString()
-                                                  );
-                                              }
-
+                                              pendingCall = null;
                                           }
-                                  );
-                              }
+                                      }
 
+                                      @Override
+                                      public void onError(
+                                          TapsellPlusErrorModel error
+                                      ) {
 
-                              @Override
-                              public void error(
-                                      @NonNull String message
-                              ) {
-
-                                  reject(
-                                          "Tapsell request error: "
-                                          + message
-                                  );
-                              }
-
+                                          reject(
+                                              error.toString()
+                                          );
+                                      }
+                                  }
+                              );
                           }
+
+                          @Override
+                          public void error(
+                              @NonNull String message
+                          ) {
+
+                              reject(message);
+                          }
+                      }
                   );
               }
-
 
               private void reject(String message) {
 
@@ -287,26 +188,18 @@ jobs:
                       pendingCall = null;
                   }
               }
-
           }
-
           JAVA
 
-
-      # -------------------------------------------------
-      # 9. Create MainActivity
-      # -------------------------------------------------
       - name: Create MainActivity
         run: |
 
           cat > android/app/src/main/java/com/allcalc/app/MainActivity.java <<'JAVA'
-
           package com.allcalc.app;
 
           import android.os.Bundle;
 
           import com.getcapacitor.BridgeActivity;
-
 
           public class MainActivity extends BridgeActivity {
 
@@ -314,29 +207,46 @@ jobs:
               public void onCreate(Bundle savedInstanceState) {
 
                   registerPlugin(
-                          TapsellPlugin.class
+                      TapsellPlugin.class
                   );
 
                   super.onCreate(
-                          savedInstanceState
+                      savedInstanceState
                   );
               }
           }
-
           JAVA
 
+      - name: Add Tapsell BuildConfig
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
 
-      # -------------------------------------------------
-      # 10. Sync again
-      # -------------------------------------------------
+          gradle = Path("android/app/build.gradle")
+          text = gradle.read_text()
+
+          marker = "defaultConfig {"
+
+          if "TAPSELL_APP_KEY" not in text:
+              text = text.replace(
+                  marker,
+                  """defaultConfig {
+                  buildConfigField "String", "TAPSELL_APP_KEY", "\"${TAPSELL_APP_KEY}\""
+                  buildConfigField "String", "TAPSELL_ZONE_ID", "\"${TAPSELL_ZONE_ID}\""
+                  """,
+                  1
+              )
+
+          gradle.write_text(text)
+          PY
+        env:
+          TAPSELL_APP_KEY: ${{ secrets.TAPSELL_APP_KEY }}
+          TAPSELL_ZONE_ID: ${{ secrets.TAPSELL_ZONE_ID }}
+
       - name: Sync Capacitor
         run: npx cap sync android
 
-
-      # -------------------------------------------------
-      # 11. Build APK
-      # -------------------------------------------------
-      - name: Build Debug APK
+      - name: Build APK
         working-directory: android
         run: |
 
@@ -344,10 +254,6 @@ jobs:
 
           ./gradlew assembleDebug
 
-
-      # -------------------------------------------------
-      # 12. Prepare APK
-      # -------------------------------------------------
       - name: Prepare APK
         run: |
 
@@ -357,10 +263,6 @@ jobs:
             android/app/build/outputs/apk/debug/app-debug.apk \
             output/AllCalc-Tapsell.apk
 
-
-      # -------------------------------------------------
-      # 13. Upload APK
-      # -------------------------------------------------
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
