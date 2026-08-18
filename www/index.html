@@ -2,201 +2,193 @@
 <html lang="fa" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 
-<title>AllCalc | همه‌کاره</title>
+<title>AllCalc</title>
 
 <style>
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+*{
+    box-sizing:border-box;
 }
 
-body {
-    font-family: Tahoma, Arial, sans-serif;
-    background: #0b1020;
-    color: #fff;
-    min-height: 100vh;
+body{
+    margin:0;
+    font-family:Tahoma,Arial,sans-serif;
+    background:#080d1a;
+    color:#fff;
 }
 
-header {
-    padding: 25px 18px 15px;
-    text-align: center;
-    background: linear-gradient(135deg,#111936,#17245a);
-    border-bottom: 1px solid #29366f;
+header{
+    padding:25px 16px 18px;
+    text-align:center;
+    background:linear-gradient(135deg,#101a3a,#18265c);
 }
 
-.logo {
-    font-size: 30px;
-    font-weight: 900;
+.logo{
+    font-size:30px;
+    font-weight:900;
 }
 
-.subtitle {
-    color: #aeb9df;
-    margin-top: 7px;
-    font-size: 14px;
+.subtitle{
+    margin-top:7px;
+    color:#b8c2df;
+    font-size:14px;
 }
 
-.search {
-    margin: 18px auto 0;
-    max-width: 600px;
+.search{
+    margin:18px auto 0;
+    max-width:650px;
 }
 
-.search input {
-    width: 100%;
-    padding: 15px 18px;
-    border: 1px solid #34447f;
-    border-radius: 16px;
-    background: #080d1c;
-    color: white;
-    font-size: 16px;
-    outline: none;
+.search input{
+    width:100%;
+    padding:15px;
+    border-radius:15px;
+    border:1px solid #344477;
+    background:#080d1a;
+    color:white;
+    font-size:16px;
+    outline:none;
 }
 
-.container {
-    max-width: 900px;
-    margin: auto;
-    padding: 18px;
+.container{
+    max-width:900px;
+    margin:auto;
+    padding:18px;
 }
 
-.section-title {
-    font-size: 20px;
-    margin: 18px 0 12px;
+.section-title{
+    margin:8px 0 13px;
+    font-size:20px;
+    font-weight:bold;
 }
 
-.categories {
-    display: grid;
-    grid-template-columns: repeat(2,1fr);
-    gap: 10px;
+.categories{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
 }
 
-.category {
-    background: #131c38;
-    border: 1px solid #293866;
-    border-radius: 15px;
-    padding: 17px;
-    cursor: pointer;
-    transition: .2s;
+.category{
+    padding:17px;
+    border-radius:16px;
+    background:#121b35;
+    border:1px solid #29375f;
+    cursor:pointer;
 }
 
-.category:hover {
-    transform: translateY(-2px);
-    background: #19244a;
+.category-icon{
+    font-size:26px;
 }
 
-.category-icon {
-    font-size: 25px;
+.category-name{
+    margin-top:8px;
+    font-weight:bold;
 }
 
-.category-name {
-    margin-top: 8px;
-    font-weight: bold;
+.tools{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
 }
 
-.tools {
-    display: grid;
-    grid-template-columns: repeat(2,1fr);
-    gap: 10px;
+.tool{
+    padding:16px;
+    border-radius:16px;
+    background:#111a32;
+    border:1px solid #29375f;
+    cursor:pointer;
 }
 
-.tool {
-    background: #111a33;
-    border: 1px solid #293866;
-    border-radius: 15px;
-    padding: 15px;
-    cursor: pointer;
+.tool:active,
+.category:active{
+    transform:scale(.98);
 }
 
-.tool:hover {
-    background: #19244a;
+.tool small{
+    display:block;
+    margin-top:6px;
+    color:#9faaca;
 }
 
-.tool small {
-    display: block;
-    color: #9da9ce;
-    margin-top: 5px;
+.hidden{
+    display:none!important;
 }
 
-.card {
-    background: #111a33;
-    border: 1px solid #293866;
-    border-radius: 18px;
-    padding: 18px;
-    margin-top: 15px;
+.card{
+    padding:18px;
+    margin-top:10px;
+    background:#111a32;
+    border:1px solid #29375f;
+    border-radius:18px;
 }
 
-.hidden {
-    display: none !important;
+h2{
+    margin-top:0;
 }
 
-button {
-    border: 0;
-    border-radius: 12px;
-    padding: 13px 18px;
-    background: #4f6df5;
-    color: white;
-    font-size: 15px;
-    cursor: pointer;
+label{
+    display:block;
+    margin:13px 0 6px;
+    color:#bbc5df;
 }
 
-button.secondary {
-    background: #252f51;
+input,select{
+    width:100%;
+    padding:13px;
+    border-radius:12px;
+    border:1px solid #3a4772;
+    background:#080d1a;
+    color:white;
+    font-size:16px;
 }
 
-input, select {
-    width: 100%;
-    margin-top: 8px;
-    padding: 13px;
-    border-radius: 12px;
-    border: 1px solid #3a4772;
-    background: #080d1c;
-    color: white;
-    font-size: 16px;
+button{
+    border:0;
+    padding:13px 18px;
+    border-radius:12px;
+    background:#526ff5;
+    color:white;
+    font-size:15px;
+    cursor:pointer;
 }
 
-label {
-    display: block;
-    margin-top: 12px;
-    color: #bbc5e5;
+.back{
+    background:#252f4e;
+    margin-bottom:10px;
 }
 
-.result {
-    margin-top: 15px;
-    padding: 15px;
-    background: #0a1127;
-    border-radius: 12px;
-    border: 1px solid #293866;
-    font-size: 18px;
+.result{
+    margin-top:15px;
+    padding:15px;
+    background:#080e20;
+    border-radius:12px;
+    border:1px solid #29375f;
+    font-size:17px;
+    line-height:1.8;
 }
 
-.back {
-    margin-bottom: 10px;
+.ad-status{
+    margin-top:15px;
+    padding:12px;
+    border-radius:12px;
+    background:#111a32;
+    color:#9faaca;
+    text-align:center;
+    font-size:13px;
 }
 
-.ad-box {
-    margin: 20px 0;
-    min-height: 55px;
-    border: 1px dashed #3b4770;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #7783a9;
-    font-size: 13px;
+footer{
+    padding:30px 10px;
+    text-align:center;
+    color:#65729a;
+    font-size:12px;
 }
 
-footer {
-    text-align: center;
-    padding: 30px 10px;
-    color: #68759e;
-    font-size: 12px;
-}
-
-@media(max-width:500px) {
-    .categories,
-    .tools {
-        grid-template-columns: 1fr 1fr;
+@media(max-width:500px){
+    .tools,
+    .categories{
+        grid-template-columns:1fr 1fr;
     }
 }
 </style>
@@ -205,26 +197,33 @@ footer {
 <body>
 
 <header>
+
     <div class="logo">🧮 AllCalc</div>
+
     <div class="subtitle">
         ماشین‌حساب و مبدل همه‌کاره
     </div>
 
     <div class="search">
         <input
-            id="search"
+            id="searchInput"
             type="search"
-            placeholder="جستجوی ابزار؛ مثلاً کیلومتر، درصد، دما..."
-            oninput="searchTools()"
-        >
+            placeholder="جستجوی ابزار..."
+            oninput="searchTools()">
     </div>
+
 </header>
+
 
 <main class="container">
 
-    <div id="home">
+    <!-- HOME -->
 
-        <div class="section-title">دسته‌بندی‌ها</div>
+    <section id="home">
+
+        <div class="section-title">
+            دسته‌بندی‌ها
+        </div>
 
         <div class="categories">
 
@@ -250,7 +249,7 @@ footer {
 
             <div class="category" onclick="showCategory('date')">
                 <div class="category-icon">📅</div>
-                <div class="category-name">تاریخ و زمان</div>
+                <div class="category-name">تاریخ</div>
             </div>
 
             <div class="category" onclick="showCategory('computer')">
@@ -260,79 +259,94 @@ footer {
 
         </div>
 
-        <div class="section-title">ابزارهای پرکاربرد</div>
+
+        <div class="section-title" style="margin-top:25px">
+            ابزارهای پرکاربرد
+        </div>
+
 
         <div class="tools">
 
-            <div class="tool searchable" data-name="ماشین حساب"
-                 onclick="openTool('calculator')">
+            <div class="tool searchable"
+                 data-name="ماشین حساب calculator"
+                 onclick="requestTool('calculator')">
                 🧮 ماشین حساب
                 <small>محاسبات معمولی</small>
             </div>
 
-            <div class="tool searchable" data-name="درصد"
-                 onclick="openTool('percent')">
+            <div class="tool searchable"
+                 data-name="درصد percent"
+                 onclick="requestTool('percent')">
                 📊 درصد
                 <small>محاسبه درصد</small>
             </div>
 
-            <div class="tool searchable" data-name="تخفیف"
-                 onclick="openTool('discount')">
+            <div class="tool searchable"
+                 data-name="تخفیف discount"
+                 onclick="requestTool('discount')">
                 🏷️ تخفیف
-                <small>قیمت بعد از تخفیف</small>
+                <small>قیمت نهایی</small>
             </div>
 
-            <div class="tool searchable" data-name="طول"
-                 onclick="openTool('length')">
+            <div class="tool searchable"
+                 data-name="طول length"
+                 onclick="requestTool('length')">
                 📏 طول
-                <small>متر، کیلومتر، مایل و...</small>
+                <small>متر، کیلومتر، مایل</small>
             </div>
 
-            <div class="tool searchable" data-name="وزن جرم"
-                 onclick="openTool('weight')">
+            <div class="tool searchable"
+                 data-name="وزن weight"
+                 onclick="requestTool('weight')">
                 ⚖️ وزن
-                <small>گرم، کیلوگرم، پوند و...</small>
+                <small>گرم، کیلوگرم، پوند</small>
             </div>
 
-            <div class="tool searchable" data-name="دما"
-                 onclick="openTool('temperature')">
+            <div class="tool searchable"
+                 data-name="دما temperature"
+                 onclick="requestTool('temperature')">
                 🌡️ دما
-                <small>سانتی‌گراد، فارنهایت، کلوین</small>
+                <small>سانتی‌گراد و فارنهایت</small>
             </div>
 
-            <div class="tool searchable" data-name="حجم"
-                 onclick="openTool('volume')">
+            <div class="tool searchable"
+                 data-name="حجم volume"
+                 onclick="requestTool('volume')">
                 🧪 حجم
-                <small>لیتر، میلی‌لیتر و...</small>
+                <small>لیتر و میلی‌لیتر</small>
             </div>
 
-            <div class="tool searchable" data-name="سرعت"
-                 onclick="openTool('speed')">
+            <div class="tool searchable"
+                 data-name="سرعت speed"
+                 onclick="requestTool('speed')">
                 🚗 سرعت
                 <small>km/h و mph</small>
             </div>
 
-            <div class="tool searchable" data-name="سن"
-                 onclick="openTool('age')">
+            <div class="tool searchable"
+                 data-name="سن age"
+                 onclick="requestTool('age')">
                 🎂 سن
                 <small>محاسبه سن</small>
             </div>
 
-            <div class="tool searchable" data-name="مساحت"
-                 onclick="openTool('area')">
+            <div class="tool searchable"
+                 data-name="مساحت area"
+                 onclick="requestTool('area')">
                 📐 مساحت
-                <small>مربع، مستطیل و دایره</small>
+                <small>مربع، دایره و...</small>
             </div>
 
         </div>
-    </div>
+
+    </section>
 
 
-    <!-- TOOL SCREEN -->
+    <!-- TOOL -->
 
-    <div id="toolScreen" class="hidden">
+    <section id="toolScreen" class="hidden">
 
-        <button class="secondary back" onclick="goHome()">
+        <button class="back" onclick="goHome()">
             ← بازگشت
         </button>
 
@@ -344,15 +358,10 @@ footer {
 
         </div>
 
-    </div>
-
-    <!-- محل تبلیغات تپسل -->
-
-    <div class="ad-box" id="adContainer">
-        محل تبلیغ
-    </div>
+    </section>
 
 </main>
+
 
 <footer>
     AllCalc v1.0
@@ -361,30 +370,97 @@ footer {
 
 <script>
 
-const home = document.getElementById("home");
-const toolScreen = document.getElementById("toolScreen");
-const toolTitle = document.getElementById("toolTitle");
-const toolContent = document.getElementById("toolContent");
+/* =====================================================
+   TAPSell
+   ===================================================== */
 
+async function requestTool(type){
 
-function goHome() {
-    toolScreen.classList.add("hidden");
-    home.classList.remove("hidden");
+    /*
+      در APK، Plugin تپسل باید وجود داشته باشد.
+      ابتدا تبلیغ Rewarded نمایش داده می‌شود.
+      فقط در صورت دریافت rewarded=true ابزار باز می‌شود.
+    */
+
+    try{
+
+        if(
+            window.Capacitor &&
+            window.Capacitor.Plugins &&
+            window.Capacitor.Plugins.Tapsell
+        ){
+
+            const Tapsell =
+                window.Capacitor.Plugins.Tapsell;
+
+            const result =
+                await Tapsell.showRewarded();
+
+            if(
+                result &&
+                result.rewarded === true
+            ){
+
+                openTool(type);
+
+            }else{
+
+                alert(
+                    "برای ورود به ابزار باید تبلیغ را کامل مشاهده کنید."
+                );
+
+            }
+
+        }else{
+
+            /*
+              وقتی HTML را مستقیم در مرورگر تست می‌کنیم،
+              تپسل وجود ندارد؛ بنابراین مستقیم ابزار را باز می‌کنیم.
+            */
+
+            openTool(type);
+
+        }
+
+    }catch(error){
+
+        console.error(
+            "Tapsell error:",
+            error
+        );
+
+        alert(
+            "تبلیغ فعلاً آماده نیست. لطفاً دوباره تلاش کنید."
+        );
+
+    }
+
 }
 
 
-function openTool(type) {
+/* =====================================================
+   TOOL SYSTEM
+   ===================================================== */
 
-    home.classList.add("hidden");
-    toolScreen.classList.remove("hidden");
+function openTool(type){
+
+    document
+        .getElementById("home")
+        .classList.add("hidden");
+
+    document
+        .getElementById("toolScreen")
+        .classList.remove("hidden");
+
 
     const tools = {
 
-        calculator: {
+        calculator:{
             title:"🧮 ماشین حساب",
             html:`
-                <input id="calcInput"
-                placeholder="مثلاً 25*4+10">
+                <input
+                    id="calcInput"
+                    placeholder="مثلاً 25*4+10">
 
                 <br><br>
 
@@ -392,14 +468,16 @@ function openTool(type) {
                     محاسبه
                 </button>
 
-                <div class="result" id="calcResult">
-                    نتیجه اینجا نمایش داده می‌شود
+                <div
+                    class="result"
+                    id="calcResult">
                 </div>
             `
         },
 
-        percent: {
-            title:"📊 محاسبه درصد",
+
+        percent:{
+            title:"📊 درصد",
             html:`
                 <label>عدد</label>
                 <input id="p1" type="number">
@@ -409,16 +487,20 @@ function openTool(type) {
 
                 <br>
 
-                <button onclick="percent()">
+                <button onclick="calculatePercent()">
                     محاسبه
                 </button>
 
-                <div class="result" id="percentResult"></div>
+                <div
+                    class="result"
+                    id="percentResult">
+                </div>
             `
         },
 
-        discount: {
-            title:"🏷️ محاسبه تخفیف",
+
+        discount:{
+            title:"🏷️ تخفیف",
             html:`
                 <label>قیمت اصلی</label>
                 <input id="price" type="number">
@@ -428,20 +510,24 @@ function openTool(type) {
 
                 <br>
 
-                <button onclick="discount()">
+                <button onclick="calculateDiscount()">
                     محاسبه
                 </button>
 
-                <div class="result" id="discountResult"></div>
+                <div
+                    class="result"
+                    id="discountResult">
+                </div>
             `
         },
 
-        length: {
+
+        length:{
             title:"📏 تبدیل طول",
             html:`
                 <input id="lengthValue" type="number">
 
-                <select id="lengthUnit">
+                <select id="lengthFrom">
                     <option value="m">متر</option>
                     <option value="km">کیلومتر</option>
                     <option value="cm">سانتی‌متر</option>
@@ -459,495 +545,4 @@ function openTool(type) {
                     <option value="cm">سانتی‌متر</option>
                     <option value="mm">میلی‌متر</option>
                     <option value="mile">مایل</option>
-                    <option value="ft">فوت</option>
-                    <option value="inch">اینچ</option>
-                </select>
-
-                <br>
-
-                <button onclick="convertLength()">
-                    تبدیل
-                </button>
-
-                <div class="result" id="lengthResult"></div>
-            `
-        },
-
-        weight: {
-            title:"⚖️ تبدیل وزن",
-            html:`
-                <input id="weightValue" type="number">
-
-                <select id="weightUnit">
-                    <option value="g">گرم</option>
-                    <option value="kg">کیلوگرم</option>
-                    <option value="mg">میلی‌گرم</option>
-                    <option value="lb">پوند</option>
-                    <option value="oz">اونس</option>
-                </select>
-
-                <label>تبدیل به</label>
-
-                <select id="weightTo">
-                    <option value="g">گرم</option>
-                    <option value="kg">کیلوگرم</option>
-                    <option value="mg">میلی‌گرم</option>
-                    <option value="lb">پوند</option>
-                    <option value="oz">اونس</option>
-                </select>
-
-                <br>
-
-                <button onclick="convertWeight()">
-                    تبدیل
-                </button>
-
-                <div class="result" id="weightResult"></div>
-            `
-        },
-
-        temperature: {
-            title:"🌡️ تبدیل دما",
-            html:`
-                <input id="tempValue" type="number">
-
-                <select id="tempFrom">
-                    <option value="c">سانتی‌گراد</option>
-                    <option value="f">فارنهایت</option>
-                    <option value="k">کلوین</option>
-                </select>
-
-                <label>تبدیل به</label>
-
-                <select id="tempTo">
-                    <option value="c">سانتی‌گراد</option>
-                    <option value="f">فارنهایت</option>
-                    <option value="k">کلوین</option>
-                </select>
-
-                <br>
-
-                <button onclick="convertTemperature()">
-                    تبدیل
-                </button>
-
-                <div class="result" id="tempResult"></div>
-            `
-        },
-
-        volume: {
-            title:"🧪 تبدیل حجم",
-            html:`
-                <input id="volumeValue" type="number">
-
-                <select id="volumeFrom">
-                    <option value="l">لیتر</option>
-                    <option value="ml">میلی‌لیتر</option>
-                    <option value="m3">متر مکعب</option>
-                    <option value="cm3">سانتی‌متر مکعب</option>
-                </select>
-
-                <label>تبدیل به</label>
-
-                <select id="volumeTo">
-                    <option value="l">لیتر</option>
-                    <option value="ml">میلی‌لیتر</option>
-                    <option value="m3">متر مکعب</option>
-                    <option value="cm3">سانتی‌متر مکعب</option>
-                </select>
-
-                <br>
-
-                <button onclick="convertVolume()">
-                    تبدیل
-                </button>
-
-                <div class="result" id="volumeResult"></div>
-            `
-        },
-
-        speed: {
-            title:"🚗 تبدیل سرعت",
-            html:`
-                <input id="speedValue" type="number">
-
-                <select id="speedFrom">
-                    <option value="kmh">کیلومتر بر ساعت</option>
-                    <option value="mph">مایل بر ساعت</option>
-                    <option value="ms">متر بر ثانیه</option>
-                </select>
-
-                <label>تبدیل به</label>
-
-                <select id="speedTo">
-                    <option value="kmh">کیلومتر بر ساعت</option>
-                    <option value="mph">مایل بر ساعت</option>
-                    <option value="ms">متر بر ثانیه</option>
-                </select>
-
-                <br>
-
-                <button onclick="convertSpeed()">
-                    تبدیل
-                </button>
-
-                <div class="result" id="speedResult"></div>
-            `
-        },
-
-        age: {
-            title:"🎂 محاسبه سن",
-            html:`
-                <label>تاریخ تولد</label>
-
-                <input id="birthDate" type="date">
-
-                <br>
-
-                <button onclick="calculateAge()">
-                    محاسبه سن
-                </button>
-
-                <div class="result" id="ageResult"></div>
-            `
-        },
-
-        area: {
-            title:"📐 محاسبه مساحت",
-            html:`
-                <select id="shape">
-                    <option value="square">مربع</option>
-                    <option value="rectangle">مستطیل</option>
-                    <option value="circle">دایره</option>
-                    <option value="triangle">مثلث</option>
-                </select>
-
-                <input id="a" type="number" placeholder="ضلع / طول / شعاع / قاعده">
-
-                <input id="b" type="number" placeholder="عرض یا ارتفاع">
-
-                <br>
-
-                <button onclick="calculateArea()">
-                    محاسبه
-                </button>
-
-                <div class="result" id="areaResult"></div>
-            `
-        }
-
-    };
-
-    if(!tools[type]) return;
-
-    toolTitle.innerHTML = tools[type].title;
-    toolContent.innerHTML = tools[type].html;
-}
-
-
-function calculate() {
-
-    const value =
-        document.getElementById("calcInput").value;
-
-    try {
-
-        if(!/^[0-9+\-*/().% ]+$/.test(value))
-            throw new Error();
-
-        const result = Function(
-            '"use strict"; return (' + value + ')'
-        )();
-
-        document.getElementById("calcResult")
-        .innerText = result;
-
-    } catch {
-
-        document.getElementById("calcResult")
-        .innerText = "عبارت نامعتبر است.";
-
-    }
-}
-
-
-function percent() {
-
-    const a = Number(document.getElementById("p1").value);
-    const b = Number(document.getElementById("p2").value);
-
-    document.getElementById("percentResult")
-    .innerText = `${b}% از ${a} برابر است با ${a*b/100}`;
-}
-
-
-function discount() {
-
-    const price =
-        Number(document.getElementById("price").value);
-
-    const d =
-        Number(document.getElementById("discount").value);
-
-    const amount = price*d/100;
-    const finalPrice = price-amount;
-
-    document.getElementById("discountResult")
-    .innerHTML =
-        `مقدار تخفیف: ${amount}<br>
-         قیمت نهایی: <b>${finalPrice}</b>`;
-}
-
-
-function convertLength() {
-
-    const value =
-        Number(document.getElementById("lengthValue").value);
-
-    const from =
-        document.getElementById("lengthUnit").value;
-
-    const to =
-        document.getElementById("lengthTo").value;
-
-    const units = {
-        m:1,
-        km:1000,
-        cm:0.01,
-        mm:0.001,
-        mile:1609.344,
-        ft:0.3048,
-        inch:0.0254
-    };
-
-    const meters = value * units[from];
-    const result = meters / units[to];
-
-    document.getElementById("lengthResult")
-    .innerText = result;
-}
-
-
-function convertWeight() {
-
-    const value =
-        Number(document.getElementById("weightValue").value);
-
-    const from =
-        document.getElementById("weightUnit").value;
-
-    const to =
-        document.getElementById("weightTo").value;
-
-    const units = {
-        g:1,
-        kg:1000,
-        mg:0.001,
-        lb:453.59237,
-        oz:28.349523125
-    };
-
-    const grams = value * units[from];
-
-    const result = grams / units[to];
-
-    document.getElementById("weightResult")
-    .innerText = result;
-}
-
-
-function convertTemperature() {
-
-    const value =
-        Number(document.getElementById("tempValue").value);
-
-    const from =
-        document.getElementById("tempFrom").value;
-
-    const to =
-        document.getElementById("tempTo").value;
-
-    let c;
-
-    if(from==="c") c=value;
-    if(from==="f") c=(value-32)*5/9;
-    if(from==="k") c=value-273.15;
-
-    let result;
-
-    if(to==="c") result=c;
-    if(to==="f") result=c*9/5+32;
-    if(to==="k") result=c+273.15;
-
-    document.getElementById("tempResult")
-    .innerText = result;
-}
-
-
-function convertVolume() {
-
-    const value =
-        Number(document.getElementById("volumeValue").value);
-
-    const from =
-        document.getElementById("volumeFrom").value;
-
-    const to =
-        document.getElementById("volumeTo").value;
-
-    const units = {
-        l:1,
-        ml:0.001,
-        m3:1000,
-        cm3:0.001
-    };
-
-    const liters = value * units[from];
-
-    const result = liters / units[to];
-
-    document.getElementById("volumeResult")
-    .innerText = result;
-}
-
-
-function convertSpeed() {
-
-    const value =
-        Number(document.getElementById("speedValue").value);
-
-    const from =
-        document.getElementById("speedFrom").value;
-
-    const to =
-        document.getElementById("speedTo").value;
-
-    const units = {
-        kmh:1,
-        mph:1.609344,
-        ms:3.6
-    };
-
-    const kmh = value * units[from];
-
-    const result = kmh / units[to];
-
-    document.getElementById("speedResult")
-    .innerText = result;
-}
-
-
-function calculateAge() {
-
-    const birth =
-        new Date(document.getElementById("birthDate").value);
-
-    if(isNaN(birth)) return;
-
-    const today = new Date();
-
-    let age =
-        today.getFullYear() -
-        birth.getFullYear();
-
-    const month =
-        today.getMonth() -
-        birth.getMonth();
-
-    if(
-        month < 0 ||
-        (month === 0 &&
-        today.getDate() < birth.getDate())
-    ) {
-        age--;
-    }
-
-    document.getElementById("ageResult")
-    .innerText = `سن شما تقریباً ${age} سال است.`;
-}
-
-
-function calculateArea() {
-
-    const shape =
-        document.getElementById("shape").value;
-
-    const a =
-        Number(document.getElementById("a").value);
-
-    const b =
-        Number(document.getElementById("b").value);
-
-    let result = 0;
-
-    if(shape==="square")
-        result = a*a;
-
-    if(shape==="rectangle")
-        result = a*b;
-
-    if(shape==="circle")
-        result = Math.PI*a*a;
-
-    if(shape==="triangle")
-        result = a*b/2;
-
-    document.getElementById("areaResult")
-    .innerText = `مساحت = ${result}`;
-}
-
-
-function searchTools() {
-
-    const query =
-        document.getElementById("search")
-        .value
-        .trim()
-        .toLowerCase();
-
-    document.querySelectorAll(".searchable")
-    .forEach(tool => {
-
-        const name =
-            tool.dataset.name.toLowerCase();
-
-        if(name.includes(query))
-            tool.style.display="block";
-        else
-            tool.style.display="none";
-
-    });
-}
-
-
-function showCategory(category) {
-
-    alert(
-        "این بخش در نسخه بعدی با ابزارهای بیشتر تکمیل می‌شود."
-    );
-
-}
-
-
-/*
-================================================
- TAPSell BRIDGE
-================================================
-
-بعداً این قسمت را به Capacitor + Tapsell
-متصل می‌کنیم.
-
-مثلاً:
-
-window.Tapsell.showBanner();
-
-window.Tapsell.showInterstitial();
-
-فعلاً هیچ SDK تبلیغاتی داخل HTML قرار نداده‌ایم.
-*/
-
-
-</script>
-
-</body>
-</html>
+                    <option value="ft">
