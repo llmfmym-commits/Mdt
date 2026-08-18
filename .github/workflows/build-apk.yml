@@ -38,13 +38,16 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
+      # -----------------------------------------
+      # Tapsell SDK
+      # -----------------------------------------
       - name: Add Tapsell SDK
         run: |
           python3 <<'PY'
           from pathlib import Path
 
-          gradle = Path("android/app/build.gradle")
-          text = gradle.read_text()
+          path = Path("android/app/build.gradle")
+          text = path.read_text()
 
           dependency = """
               implementation 'ir.tapsell.plus:tapsell-plus-sdk-android:2.3.3'
@@ -57,10 +60,13 @@ jobs:
                   1
               )
 
-          gradle.write_text(text)
+          path.write_text(text)
           PY
 
-      - name: Create Tapsell Plugin
+      # -----------------------------------------
+      # Create secure Tapsell config
+      # -----------------------------------------
+      - name: Create Tapsell Config
         env:
           TAPSELL_APP_KEY: ${{ secrets.TAPSELL_APP_KEY }}
           TAPSELL_ZONE_ID: ${{ secrets.TAPSELL_ZONE_ID }}
@@ -68,7 +74,57 @@ jobs:
 
           mkdir -p android/app/src/main/java/com/allcalc/app
 
+          python3 <<'PY'
+
+          import os
+          import json
+          from pathlib import Path
+
+          app_key = os.environ["TAPSELL_APP_KEY"]
+          zone_id = os.environ["TAPSELL_ZONE_ID"]
+
+          app_key_java = json.dumps(
+              app_key,
+              ensure_ascii=False
+          )
+
+          zone_id_java = json.dumps(
+              zone_id,
+              ensure_ascii=False
+          )
+
+          content = f'''package com.allcalc.app;
+
+          public final class TapsellConfig {{
+
+              private TapsellConfig() {{
+
+              }}
+
+              public static final String APP_KEY =
+                      {app_key_java};
+
+              public static final String ZONE_ID =
+                      {zone_id_java};
+          }}
+          '''
+
+          Path(
+              "android/app/src/main/java/com/allcalc/app/TapsellConfig.java"
+          ).write_text(content)
+
+          PY
+
+      # -----------------------------------------
+      # Create Capacitor Tapsell Plugin
+      # -----------------------------------------
+      - name: Create Tapsell Plugin
+        run: |
+
+          mkdir -p android/app/src/main/java/com/allcalc/app
+
           cat > android/app/src/main/java/com/allcalc/app/TapsellPlugin.java <<'JAVA'
+
           package com.allcalc.app;
 
           import androidx.annotation.NonNull;
@@ -91,11 +147,12 @@ jobs:
 
               @Override
               public void load() {
+
                   super.load();
 
                   TapsellPlus.initialize(
                       getContext(),
-                      BuildConfig.TAPSELL_APP_KEY,
+                      TapsellConfig.APP_KEY,
                       null
                   );
               }
@@ -107,7 +164,7 @@ jobs:
 
                   TapsellPlus.requestRewardedVideoAd(
                       getActivity(),
-                      BuildConfig.TAPSELL_ZONE_ID,
+                      TapsellConfig.ZONE_ID,
                       new AdRequestCallback() {
 
                           @Override
@@ -189,12 +246,17 @@ jobs:
                   }
               }
           }
+
           JAVA
 
+      # -----------------------------------------
+      # MainActivity
+      # -----------------------------------------
       - name: Create MainActivity
         run: |
 
           cat > android/app/src/main/java/com/allcalc/app/MainActivity.java <<'JAVA'
+
           package com.allcalc.app;
 
           import android.os.Bundle;
@@ -204,7 +266,9 @@ jobs:
           public class MainActivity extends BridgeActivity {
 
               @Override
-              public void onCreate(Bundle savedInstanceState) {
+              public void onCreate(
+                  Bundle savedInstanceState
+              ) {
 
                   registerPlugin(
                       TapsellPlugin.class
@@ -215,37 +279,18 @@ jobs:
                   );
               }
           }
+
           JAVA
 
-      - name: Add Tapsell BuildConfig
-        run: |
-          python3 <<'PY'
-          from pathlib import Path
-
-          gradle = Path("android/app/build.gradle")
-          text = gradle.read_text()
-
-          marker = "defaultConfig {"
-
-          if "TAPSELL_APP_KEY" not in text:
-              text = text.replace(
-                  marker,
-                  """defaultConfig {
-                  buildConfigField "String", "TAPSELL_APP_KEY", "\"${TAPSELL_APP_KEY}\""
-                  buildConfigField "String", "TAPSELL_ZONE_ID", "\"${TAPSELL_ZONE_ID}\""
-                  """,
-                  1
-              )
-
-          gradle.write_text(text)
-          PY
-        env:
-          TAPSELL_APP_KEY: ${{ secrets.TAPSELL_APP_KEY }}
-          TAPSELL_ZONE_ID: ${{ secrets.TAPSELL_ZONE_ID }}
-
+      # -----------------------------------------
+      # Sync
+      # -----------------------------------------
       - name: Sync Capacitor
         run: npx cap sync android
 
+      # -----------------------------------------
+      # Build APK
+      # -----------------------------------------
       - name: Build APK
         working-directory: android
         run: |
@@ -254,6 +299,9 @@ jobs:
 
           ./gradlew assembleDebug
 
+      # -----------------------------------------
+      # Prepare APK
+      # -----------------------------------------
       - name: Prepare APK
         run: |
 
@@ -263,6 +311,9 @@ jobs:
             android/app/build/outputs/apk/debug/app-debug.apk \
             output/AllCalc-Tapsell.apk
 
+      # -----------------------------------------
+      # Upload APK
+      # -----------------------------------------
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
