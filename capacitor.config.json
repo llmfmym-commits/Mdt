@@ -1,0 +1,6 @@
+{
+  "appId": "com.allcalc.app",
+  "appName": "AllCalc",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}
