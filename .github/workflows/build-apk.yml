@@ -10,6 +10,7 @@ permissions:
   contents: read
 
 jobs:
+
   build:
     runs-on: ubuntu-latest
 
@@ -29,34 +30,255 @@ jobs:
         with:
           node-version: 22
 
-      - name: Show versions
-        run: |
-          java -version
-          node -v
-          npm -v
-
       - name: Install dependencies
         run: npm install
 
-      - name: Add Android platform
+      - name: Add Android
         run: npx cap add android
 
       - name: Sync Capacitor
         run: npx cap sync android
 
+      - name: Configure Tapsell
+        env:
+          TAPSELL_APP_KEY: ${{ secrets.TAPSELL_APP_KEY }}
+          TAPSELL_ZONE_ID: ${{ secrets.TAPSELL_ZONE_ID }}
+        run: |
+
+          python3 <<'PY'
+          import os
+          from pathlib import Path
+
+          app_key = os.environ["TAPSELL_APP_KEY"]
+          zone_id = os.environ["TAPSELL_ZONE_ID"]
+
+          gradle = Path("android/app/build.gradle")
+          text = gradle.read_text()
+
+          # اضافه کردن BuildConfig
+          marker = "defaultConfig {"
+
+          fields = f'''
+                  buildConfigField "String", "TAPSELL_APP_KEY", "\\"{app_key}\\""
+                  buildConfigField "String", "TAPSELL_ZONE_ID", "\\"{zone_id}\\""
+          '''
+
+          text = text.replace(
+              marker,
+              marker + fields,
+              1
+          )
+
+          # اضافه کردن SDK
+          dep_marker = "dependencies {"
+
+          dependency = '''
+              implementation 'ir.tapsell.plus:tapsell-plus-sdk-android:2.3.3'
+          '''
+
+          text = text.replace(
+              dep_marker,
+              dep_marker + dependency,
+              1
+          )
+
+          gradle.write_text(text)
+          PY
+
+      - name: Create Tapsell Plugin
+        run: |
+
+          mkdir -p android/app/src/main/java/com/allcalc/app
+
+          cat > android/app/src/main/java/com/allcalc/app/TapsellPlugin.java <<'JAVA'
+
+          package com.allcalc.app;
+
+          import android.util.Log;
+
+          import androidx.annotation.NonNull;
+
+          import com.getcapacitor.JSObject;
+          import com.getcapacitor.Plugin;
+          import com.getcapacitor.PluginCall;
+          import com.getcapacitor.annotation.CapacitorPlugin;
+
+          import ir.tapsell.plus.AdRequestCallback;
+          import ir.tapsell.plus.AdShowListener;
+          import ir.tapsell.plus.TapsellPlus;
+          import ir.tapsell.plus.model.TapsellPlusAdModel;
+          import ir.tapsell.plus.model.TapsellPlusErrorModel;
+
+          @CapacitorPlugin(name = "Tapsell")
+          public class TapsellPlugin extends Plugin {
+
+              private String responseId;
+              private PluginCall pendingCall;
+
+              @Override
+              public void load() {
+                  super.load();
+
+                  TapsellPlus.initialize(
+                          getContext(),
+                          BuildConfig.TAPSELL_APP_KEY,
+                          null
+                  );
+              }
+
+              @com.getcapacitor.PluginMethod
+              public void showRewarded(PluginCall call) {
+
+                  pendingCall = call;
+
+                  TapsellPlus.requestRewardedVideoAd(
+                          getActivity(),
+                          BuildConfig.TAPSELL_ZONE_ID,
+                          new AdRequestCallback() {
+
+                              @Override
+                              public void response(
+                                      TapsellPlusAdModel adModel
+                              ) {
+
+                                  responseId =
+                                          adModel.getResponseId();
+
+                                  TapsellPlus.showRewardedVideoAd(
+                                          getActivity(),
+                                          responseId,
+                                          new AdShowListener() {
+
+                                              @Override
+                                              public void onOpened(
+                                                      TapsellPlusAdModel ad
+                                              ) {
+
+                                                  Log.d(
+                                                          "AllCalc",
+                                                          "Rewarded ad opened"
+                                                  );
+                                              }
+
+                                              @Override
+                                              public void onClosed(
+                                                      TapsellPlusAdModel ad
+                                              ) {
+
+                                                  Log.d(
+                                                          "AllCalc",
+                                                          "Rewarded ad closed"
+                                                  );
+                                              }
+
+                                              @Override
+                                              public void onRewarded(
+                                                      TapsellPlusAdModel ad
+                                              ) {
+
+                                                  if (pendingCall != null) {
+
+                                                      JSObject result =
+                                                              new JSObject();
+
+                                                      result.put(
+                                                              "rewarded",
+                                                              true
+                                                      );
+
+                                                      pendingCall.resolve(
+                                                              result
+                                                      );
+
+                                                      pendingCall = null;
+                                                  }
+                                              }
+
+                                              @Override
+                                              public void onError(
+                                                      TapsellPlusErrorModel error
+                                              ) {
+
+                                                  reject(
+                                                          "خطا در نمایش تبلیغ: "
+                                                          + error.toString()
+                                                  );
+                                              }
+                                          });
+                              }
+
+                              @Override
+                              public void error(
+                                      @NonNull String message
+                              ) {
+
+                                  reject(
+                                          "تبلیغ آماده نشد: "
+                                          + message
+                                  );
+                              }
+                          });
+              }
+
+              private void reject(String message) {
+
+                  if (pendingCall != null) {
+
+                      pendingCall.reject(message);
+
+                      pendingCall = null;
+                  }
+              }
+          }
+
+          JAVA
+
+      - name: Create MainActivity
+        run: |
+
+          cat > android/app/src/main/java/com/allcalc/app/MainActivity.java <<'JAVA'
+
+          package com.allcalc.app;
+
+          import com.getcapacitor.BridgeActivity;
+
+          public class MainActivity extends BridgeActivity {
+
+              @Override
+              public void onCreate(
+                      android.os.Bundle savedInstanceState
+              ) {
+
+                  registerPlugin(TapsellPlugin.class);
+
+                  super.onCreate(savedInstanceState);
+              }
+          }
+
+          JAVA
+
+      - name: Sync Capacitor again
+        run: npx cap sync android
+
       - name: Build APK
         working-directory: android
         run: |
+
           chmod +x gradlew
+
           ./gradlew assembleDebug
 
       - name: Prepare APK
         run: |
+
           mkdir -p output
-          cp android/app/build/outputs/apk/debug/app-debug.apk output/AllCalc.apk
+
+          cp \
+            android/app/build/outputs/apk/debug/app-debug.apk \
+            output/AllCalc-Tapsell.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: AllCalc-APK
-          path: output/AllCalc.apk
+          name: AllCalc-Tapsell-APK
+          path: output/AllCalc-Tapsell.apk
