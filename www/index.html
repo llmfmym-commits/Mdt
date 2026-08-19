@@ -2,6 +2,7 @@
 <html lang="fa" dir="rtl">
 
 <head>
+
 <meta charset="UTF-8">
 
 <meta
@@ -81,7 +82,12 @@ header{
     background:#121b35;
     border:1px solid #29375f;
     cursor:pointer;
+    user-select:none;
     transition:.15s;
+}
+
+.category:active{
+    transform:scale(.97);
 }
 
 .category-icon{
@@ -105,11 +111,11 @@ header{
     background:#111a32;
     border:1px solid #29375f;
     cursor:pointer;
+    user-select:none;
     transition:.15s;
 }
 
-.tool:active,
-.category:active{
+.tool:active{
     transform:scale(.97);
 }
 
@@ -181,19 +187,14 @@ button:active{
     line-height:1.8;
 }
 
-.ad-status{
+.notice{
     margin-top:15px;
-    padding:12px;
+    padding:13px;
     border-radius:12px;
-    background:#111a32;
-    color:#9faaca;
-    text-align:center;
+    background:#151f3d;
+    color:#b8c2df;
     font-size:13px;
-}
-
-.loading{
-    text-align:center;
-    padding:25px;
+    line-height:1.8;
 }
 
 footer{
@@ -213,6 +214,7 @@ footer{
 }
 
 </style>
+
 </head>
 
 
@@ -245,8 +247,6 @@ footer{
 
 <main class="container">
 
-
-<!-- ================= HOME ================= -->
 
 <section id="home">
 
@@ -382,7 +382,7 @@ footer{
         <div
             class="tool searchable"
             data-name="دما temperature"
-            data-category="science"
+            data-category="convert"
             onclick="requestTool('temperature')"
         >
             🌡️ دما
@@ -439,7 +439,6 @@ footer{
 </section>
 
 
-<!-- ================= TOOL SCREEN ================= -->
 
 <section
     id="toolScreen"
@@ -473,45 +472,23 @@ footer{
 </footer>
 
 
+
 <script>
 
-
 /* =====================================================
-   TAPSELL / CAPACITOR
+   TAPSELL
    ===================================================== */
-
-let TapsellPlugin = null;
-
 
 /*
-   Capacitor plugin را به شکل رسمی Register می‌کنیم.
+   بسیار مهم:
+
+   این نسخه دیگر در صورت نبودن Tapsell
+   مستقیماً ابزار را باز نمی‌کند.
+
+   بنابراین اگر Plugin درست ثبت نشده باشد،
+   پیام خطا می‌بینیم و مشکل را پیدا می‌کنیم.
 */
 
-try{
-
-    if(
-        window.Capacitor &&
-        typeof window.Capacitor.registerPlugin === "function"
-    ){
-
-        TapsellPlugin =
-            window.Capacitor.registerPlugin("Tapsell");
-
-    }
-
-}catch(error){
-
-    console.log(
-        "Tapsell plugin registration failed:",
-        error
-    );
-
-}
-
-
-/* =====================================================
-   REQUEST TOOL
-   ===================================================== */
 
 async function requestTool(type){
 
@@ -521,24 +498,74 @@ async function requestTool(type){
     );
 
 
-    /*
-       اگر Plugin وجود نداشت،
-       برای تست مستقیماً ابزار را باز می‌کنیم.
-    */
+    try{
 
-    if(!TapsellPlugin){
+        /*
+           بررسی Capacitor
+        */
+
+        if(
+            !window.Capacitor
+        ){
+
+            alert(
+                "Capacitor در برنامه پیدا نشد."
+            );
+
+            return;
+        }
+
+
+        /*
+           بررسی Plugins
+        */
+
+        if(
+            !window.Capacitor.Plugins
+        ){
+
+            alert(
+                "بخش Plugins در Capacitor پیدا نشد."
+            );
+
+            return;
+        }
+
+
+        /*
+           بررسی Tapsell
+        */
+
+        const TapsellPlugin =
+            window.Capacitor.Plugins.Tapsell;
+
+
+        if(
+            !TapsellPlugin
+        ){
+
+            console.error(
+                "Tapsell plugin not available."
+            );
+
+
+            alert(
+                "پلاگین Tapsell در APK پیدا نشد."
+            );
+
+
+            return;
+        }
+
 
         console.log(
-            "Tapsell plugin not available."
+            "Tapsell plugin found."
         );
 
-        openTool(type);
 
-        return;
-    }
-
-
-    try{
+        /*
+           نمایش تبلیغ جایزه‌ای
+        */
 
         console.log(
             "Requesting rewarded advertisement..."
@@ -555,32 +582,44 @@ async function requestTool(type){
         );
 
 
+        /*
+           فقط در صورت دریافت جایزه
+           ابزار باز می‌شود.
+        */
+
         if(
             result &&
             result.rewarded === true
         ){
 
+            console.log(
+                "Reward received."
+            );
+
+
             openTool(type);
 
-        }else{
+        }
+        else{
 
             alert(
-                "برای ورود به این ابزار باید تبلیغ را کامل مشاهده کنید."
+                "تبلیغ کامل مشاهده نشد؛ ورود به ابزار امکان‌پذیر نیست."
             );
 
         }
 
-
-    }catch(error){
+    }
+    catch(error){
 
         console.error(
-            "Tapsell error:",
+            "Tapsell Error:",
             error
         );
 
 
         alert(
-            "تبلیغ فعلاً آماده نیست. لطفاً دوباره تلاش کنید."
+            "خطا در اجرای تبلیغ Tapsell:\n" +
+            String(error)
         );
 
     }
@@ -588,11 +627,24 @@ async function requestTool(type){
 }
 
 
+
 /* =====================================================
    OPEN TOOL
    ===================================================== */
 
+
 function openTool(type){
+
+    document
+        .getElementById("home")
+        .classList.add("hidden");
+
+
+    document
+        .getElementById("toolScreen")
+        .classList
+        .remove("hidden");
+
 
     const tools = {
 
@@ -606,7 +658,7 @@ function openTool(type){
                 <input
                     id="calcInput"
                     type="text"
-                    inputmode="text"
+                    inputmode="decimal"
                     placeholder="مثلاً 25*4+10"
                 >
 
@@ -643,6 +695,7 @@ function openTool(type){
                     type="number"
                 >
 
+
                 <label>
                     درصد
                 </label>
@@ -660,6 +713,7 @@ function openTool(type){
                     محاسبه
                 </button>
 
+
                 <div
                     class="result"
                     id="percentResult"
@@ -672,7 +726,7 @@ function openTool(type){
 
         discount:{
 
-            title:"🏷️ محاسبه تخفیف",
+            title:"🏷️ تخفیف",
 
             html:`
 
@@ -684,6 +738,7 @@ function openTool(type){
                     id="price"
                     type="number"
                 >
+
 
                 <label>
                     درصد تخفیف
@@ -701,6 +756,7 @@ function openTool(type){
                 >
                     محاسبه
                 </button>
+
 
                 <div
                     class="result"
@@ -726,6 +782,7 @@ function openTool(type){
                     id="lengthValue"
                     type="number"
                 >
+
 
                 <label>
                     از
@@ -800,6 +857,7 @@ function openTool(type){
 
                 </select>
 
+
                 <br><br>
 
                 <button
@@ -807,6 +865,7 @@ function openTool(type){
                 >
                     تبدیل
                 </button>
+
 
                 <div
                     class="result"
@@ -832,6 +891,7 @@ function openTool(type){
                     id="weightValue"
                     type="number"
                 >
+
 
                 <label>
                     از
@@ -890,6 +950,7 @@ function openTool(type){
 
                 </select>
 
+
                 <br><br>
 
                 <button
@@ -897,6 +958,7 @@ function openTool(type){
                 >
                     تبدیل
                 </button>
+
 
                 <div
                     class="result"
@@ -919,15 +981,16 @@ function openTool(type){
                 </label>
 
                 <input
-                    id="temperatureValue"
+                    id="tempValue"
                     type="number"
                 >
+
 
                 <label>
                     از
                 </label>
 
-                <select id="temperatureFrom">
+                <select id="tempFrom">
 
                     <option value="c">
                         سانتی‌گراد
@@ -948,7 +1011,7 @@ function openTool(type){
                     به
                 </label>
 
-                <select id="temperatureTo">
+                <select id="tempTo">
 
                     <option value="c">
                         سانتی‌گراد
@@ -964,6 +1027,7 @@ function openTool(type){
 
                 </select>
 
+
                 <br><br>
 
                 <button
@@ -972,9 +1036,10 @@ function openTool(type){
                     تبدیل
                 </button>
 
+
                 <div
                     class="result"
-                    id="temperatureResult"
+                    id="tempResult"
                 ></div>
 
             `
@@ -996,6 +1061,7 @@ function openTool(type){
                     id="volumeValue"
                     type="number"
                 >
+
 
                 <label>
                     از
@@ -1046,6 +1112,7 @@ function openTool(type){
 
                 </select>
 
+
                 <br><br>
 
                 <button
@@ -1053,6 +1120,7 @@ function openTool(type){
                 >
                     تبدیل
                 </button>
+
 
                 <div
                     class="result"
@@ -1078,6 +1146,7 @@ function openTool(type){
                     id="speedValue"
                     type="number"
                 >
+
 
                 <label>
                     از
@@ -1120,6 +1189,7 @@ function openTool(type){
 
                 </select>
 
+
                 <br><br>
 
                 <button
@@ -1127,6 +1197,7 @@ function openTool(type){
                 >
                     تبدیل
                 </button>
+
 
                 <div
                     class="result"
@@ -1145,13 +1216,12 @@ function openTool(type){
             html:`
 
                 <label>
-                    سال تولد
+                    تاریخ تولد
                 </label>
 
                 <input
-                    id="birthYear"
-                    type="number"
-                    placeholder="مثلاً 1385"
+                    id="birthDate"
+                    type="date"
                 >
 
                 <br><br>
@@ -1161,6 +1231,7 @@ function openTool(type){
                 >
                     محاسبه سن
                 </button>
+
 
                 <div
                     class="result"
@@ -1215,15 +1286,14 @@ function openTool(type){
 
                 <label>
                     مقدار دوم
-                    <small>
-                        برای دایره لازم نیست
-                    </small>
                 </label>
 
                 <input
                     id="areaB"
                     type="number"
+                    placeholder="برای مربع/دایره لازم نیست"
                 >
+
 
                 <br><br>
 
@@ -1232,6 +1302,7 @@ function openTool(type){
                 >
                     محاسبه
                 </button>
+
 
                 <div
                     class="result"
@@ -1245,60 +1316,59 @@ function openTool(type){
     };
 
 
-    if(!tools[type]){
+    if(
+        !tools[type]
+    ){
 
-        alert(
-            "این ابزار هنوز ساخته نشده است."
-        );
+        document
+            .getElementById("toolTitle")
+            .textContent =
+            "ابزار پیدا نشد";
+
+        document
+            .getElementById("toolContent")
+            .innerHTML =
+            "<div class='result'>این ابزار هنوز ساخته نشده است.</div>";
 
         return;
     }
 
 
     document
-        .getElementById("home")
-        .classList.add("hidden");
-
-
-    document
-        .getElementById("toolScreen")
-        .classList.remove("hidden");
-
-
-    document
         .getElementById("toolTitle")
         .textContent =
-            tools[type].title;
+        tools[type].title;
 
 
     document
         .getElementById("toolContent")
         .innerHTML =
-            tools[type].html;
+        tools[type].html;
 
 }
+
 
 
 /* =====================================================
    CALCULATOR
    ===================================================== */
 
+
 function calculate(){
 
     const input =
-        document.getElementById("calcInput");
+        document
+        .getElementById("calcInput")
+        .value
+        .trim();
+
 
     const result =
-        document.getElementById("calcResult");
+        document
+        .getElementById("calcResult");
 
-    if(!input || !result){
-        return;
-    }
 
-    const expression =
-        input.value.trim();
-
-    if(!expression){
+    if(!input){
 
         result.textContent =
             "لطفاً یک عبارت وارد کنید.";
@@ -1308,12 +1378,11 @@ function calculate(){
 
 
     /*
-       فقط محاسبات ساده ریاضی.
-       از کاراکترهای خطرناک جلوگیری می‌کنیم.
+       فقط عملیات ریاضی ساده مجاز است.
     */
 
     if(
-        !/^[0-9+\-*/().%\s]+$/.test(expression)
+        !/^[0-9+\-*/().%\s]+$/.test(input)
     ){
 
         result.textContent =
@@ -1328,9 +1397,10 @@ function calculate(){
         const value =
             Function(
                 '"use strict"; return (' +
-                expression +
+                input +
                 ')'
             )();
+
 
         if(
             typeof value !== "number" ||
@@ -1341,37 +1411,49 @@ function calculate(){
 
         }
 
-        result.textContent =
-            "نتیجه: " + value;
-
-    }catch(error){
 
         result.textContent =
-            "محاسبه امکان‌پذیر نیست.";
+            "نتیجه: " +
+            value;
+
+    }
+    catch{
+
+        result.textContent =
+            "محاسبه انجام نشد.";
 
     }
 
 }
 
 
+
 /* =====================================================
    PERCENT
    ===================================================== */
+
 
 function calculatePercent(){
 
     const a =
         Number(
-            document.getElementById("p1").value
+            document
+            .getElementById("p1")
+            .value
         );
+
 
     const b =
         Number(
-            document.getElementById("p2").value
+            document
+            .getElementById("p2")
+            .value
         );
 
+
     const result =
-        document.getElementById("percentResult");
+        document
+        .getElementById("percentResult");
 
 
     if(
@@ -1380,14 +1462,15 @@ function calculatePercent(){
     ){
 
         result.textContent =
-            "لطفاً هر دو مقدار را وارد کنید.";
+            "مقادیر را وارد کنید.";
 
         return;
     }
 
 
     result.textContent =
-        b + "% از " +
+        b +
+        "% از " +
         a +
         " = " +
         (a * b / 100);
@@ -1395,24 +1478,33 @@ function calculatePercent(){
 }
 
 
+
 /* =====================================================
    DISCOUNT
    ===================================================== */
+
 
 function calculateDiscount(){
 
     const price =
         Number(
-            document.getElementById("price").value
+            document
+            .getElementById("price")
+            .value
         );
+
 
     const discount =
         Number(
-            document.getElementById("discount").value
+            document
+            .getElementById("discount")
+            .value
         );
 
+
     const result =
-        document.getElementById("discountResult");
+        document
+        .getElementById("discountResult");
 
 
     if(
@@ -1421,7 +1513,7 @@ function calculateDiscount(){
     ){
 
         result.textContent =
-            "لطفاً مقادیر را وارد کنید.";
+            "مقادیر را وارد کنید.";
 
         return;
     }
@@ -1429,6 +1521,7 @@ function calculateDiscount(){
 
     const amount =
         price * discount / 100;
+
 
     const finalPrice =
         price - amount;
@@ -1444,25 +1537,37 @@ function calculateDiscount(){
 }
 
 
+
 /* =====================================================
    LENGTH
    ===================================================== */
+
 
 function convertLength(){
 
     const value =
         Number(
-            document.getElementById("lengthValue").value
+            document
+            .getElementById("lengthValue")
+            .value
         );
 
+
     const from =
-        document.getElementById("lengthFrom").value;
+        document
+        .getElementById("lengthFrom")
+        .value;
+
 
     const to =
-        document.getElementById("lengthTo").value;
+        document
+        .getElementById("lengthTo")
+        .value;
+
 
     const result =
-        document.getElementById("lengthResult");
+        document
+        .getElementById("lengthResult");
 
 
     const units = {
@@ -1489,7 +1594,7 @@ function convertLength(){
     ){
 
         result.textContent =
-            "مقدار معتبر وارد کنید.";
+            "مقدار را وارد کنید.";
 
         return;
     }
@@ -1498,35 +1603,49 @@ function convertLength(){
     const meters =
         value * units[from];
 
-    const answer =
+
+    const converted =
         meters / units[to];
 
 
     result.textContent =
-        "نتیجه: " + answer;
+        "نتیجه: " +
+        converted;
 
 }
+
 
 
 /* =====================================================
    WEIGHT
    ===================================================== */
 
+
 function convertWeight(){
 
     const value =
         Number(
-            document.getElementById("weightValue").value
+            document
+            .getElementById("weightValue")
+            .value
         );
 
+
     const from =
-        document.getElementById("weightFrom").value;
+        document
+        .getElementById("weightFrom")
+        .value;
+
 
     const to =
-        document.getElementById("weightTo").value;
+        document
+        .getElementById("weightTo")
+        .value;
+
 
     const result =
-        document.getElementById("weightResult");
+        document
+        .getElementById("weightResult");
 
 
     const units = {
@@ -1549,52 +1668,58 @@ function convertWeight(){
     ){
 
         result.textContent =
-            "مقدار معتبر وارد کنید.";
+            "مقدار را وارد کنید.";
 
         return;
     }
 
 
-    const kg =
+    const kilograms =
         value * units[from];
 
-    const answer =
-        kg / units[to];
+
+    const converted =
+        kilograms / units[to];
 
 
     result.textContent =
-        "نتیجه: " + answer;
+        "نتیجه: " +
+        converted;
 
 }
+
 
 
 /* =====================================================
    TEMPERATURE
    ===================================================== */
 
+
 function convertTemperature(){
 
     const value =
         Number(
-            document.getElementById(
-                "temperatureValue"
-            ).value
+            document
+            .getElementById("tempValue")
+            .value
         );
+
 
     const from =
-        document.getElementById(
-            "temperatureFrom"
-        ).value;
+        document
+        .getElementById("tempFrom")
+        .value;
+
 
     const to =
-        document.getElementById(
-            "temperatureTo"
-        ).value;
+        document
+        .getElementById("tempTo")
+        .value;
+
 
     const result =
-        document.getElementById(
-            "temperatureResult"
-        );
+        document
+        .getElementById("tempResult");
 
 
     if(
@@ -1602,7 +1727,7 @@ function convertTemperature(){
     ){
 
         result.textContent =
-            "مقدار معتبر وارد کنید.";
+            "مقدار را وارد کنید.";
 
         return;
     }
@@ -1611,77 +1736,67 @@ function convertTemperature(){
     let celsius;
 
 
-    if(from === "c"){
-
+    if(from === "c")
         celsius = value;
 
-    }else if(from === "f"){
+    else if(from === "f")
+        celsius = (value - 32) * 5 / 9;
 
-        celsius =
-            (value - 32) * 5 / 9;
-
-    }else{
-
-        celsius =
-            value - 273.15;
-
-    }
+    else
+        celsius = value - 273.15;
 
 
-    let answer;
+    let converted;
 
 
-    if(to === "c"){
+    if(to === "c")
+        converted = celsius;
 
-        answer =
-            celsius;
+    else if(to === "f")
+        converted = celsius * 9 / 5 + 32;
 
-    }else if(to === "f"){
-
-        answer =
-            celsius * 9 / 5 + 32;
-
-    }else{
-
-        answer =
-            celsius + 273.15;
-
-    }
+    else
+        converted = celsius + 273.15;
 
 
     result.textContent =
-        "نتیجه: " + answer;
+        "نتیجه: " +
+        converted;
 
 }
+
 
 
 /* =====================================================
    VOLUME
    ===================================================== */
 
+
 function convertVolume(){
 
     const value =
         Number(
-            document.getElementById(
-                "volumeValue"
-            ).value
+            document
+            .getElementById("volumeValue")
+            .value
         );
+
 
     const from =
-        document.getElementById(
-            "volumeFrom"
-        ).value;
+        document
+        .getElementById("volumeFrom")
+        .value;
+
 
     const to =
-        document.getElementById(
-            "volumeTo"
-        ).value;
+        document
+        .getElementById("volumeTo")
+        .value;
+
 
     const result =
-        document.getElementById(
-            "volumeResult"
-        );
+        document
+        .getElementById("volumeResult");
 
 
     const units = {
@@ -1702,7 +1817,7 @@ function convertVolume(){
     ){
 
         result.textContent =
-            "مقدار معتبر وارد کنید.";
+            "مقدار را وارد کنید.";
 
         return;
     }
@@ -1711,43 +1826,49 @@ function convertVolume(){
     const liters =
         value * units[from];
 
-    const answer =
+
+    const converted =
         liters / units[to];
 
 
     result.textContent =
-        "نتیجه: " + answer;
+        "نتیجه: " +
+        converted;
 
 }
+
 
 
 /* =====================================================
    SPEED
    ===================================================== */
 
+
 function convertSpeed(){
 
     const value =
         Number(
-            document.getElementById(
-                "speedValue"
-            ).value
+            document
+            .getElementById("speedValue")
+            .value
         );
+
 
     const from =
-        document.getElementById(
-            "speedFrom"
-        ).value;
+        document
+        .getElementById("speedFrom")
+        .value;
+
 
     const to =
-        document.getElementById(
-            "speedTo"
-        ).value;
+        document
+        .getElementById("speedTo")
+        .value;
+
 
     const result =
-        document.getElementById(
-            "speedResult"
-        );
+        document
+        .getElementById("speedResult");
 
 
     const units = {
@@ -1766,7 +1887,7 @@ function convertSpeed(){
     ){
 
         result.textContent =
-            "مقدار معتبر وارد کنید.";
+            "مقدار را وارد کنید.";
 
         return;
     }
@@ -1775,107 +1896,126 @@ function convertSpeed(){
     const kmh =
         value * units[from];
 
-    const answer =
+
+    const converted =
         kmh / units[to];
 
 
     result.textContent =
-        "نتیجه: " + answer;
+        "نتیجه: " +
+        converted;
 
 }
+
 
 
 /* =====================================================
    AGE
    ===================================================== */
 
+
 function calculateAge(){
 
-    const year =
-        Number(
-            document.getElementById(
-                "birthYear"
-            ).value
-        );
+    const input =
+        document
+        .getElementById("birthDate")
+        .value;
+
 
     const result =
-        document.getElementById(
-            "ageResult"
-        );
+        document
+        .getElementById("ageResult");
 
 
-    if(
-        !Number.isFinite(year) ||
-        year < 1000 ||
-        year > 2100
-    ){
+    if(!input){
 
         result.textContent =
-            "سال تولد معتبر وارد کنید.";
+            "تاریخ تولد را وارد کنید.";
 
         return;
     }
 
 
-    /*
-       برای سال شمسی، سال فعلی تقریبی.
-       در آینده می‌توانیم تاریخ دقیق شمسی اضافه کنیم.
-    */
-
-    const currentPersianYear =
-        1405;
+    const birth =
+        new Date(input);
 
 
-    const age =
-        currentPersianYear - year;
+    const today =
+        new Date();
+
+
+    let age =
+        today.getFullYear() -
+        birth.getFullYear();
+
+
+    const month =
+        today.getMonth() -
+        birth.getMonth();
+
+
+    if(
+        month < 0 ||
+        (
+            month === 0 &&
+            today.getDate() < birth.getDate()
+        )
+    ){
+
+        age--;
+
+    }
 
 
     result.textContent =
-        "سن تقریبی: " +
+        "سن شما: " +
         age +
         " سال";
 
 }
 
 
+
 /* =====================================================
    AREA
    ===================================================== */
 
+
 function calculateArea(){
 
     const type =
-        document.getElementById(
-            "areaType"
-        ).value;
+        document
+        .getElementById("areaType")
+        .value;
+
 
     const a =
         Number(
-            document.getElementById(
-                "areaA"
-            ).value
+            document
+            .getElementById("areaA")
+            .value
         );
+
 
     const b =
         Number(
-            document.getElementById(
-                "areaB"
-            ).value
+            document
+            .getElementById("areaB")
+            .value
         );
 
+
     const result =
-        document.getElementById(
-            "areaResult"
-        );
+        document
+        .getElementById("areaResult");
 
 
     if(
-        !Number.isFinite(a) ||
-        a < 0
+        !Number.isFinite(a)
     ){
 
         result.textContent =
-            "مقدار معتبر وارد کنید.";
+            "مقدار اول را وارد کنید.";
 
         return;
     }
@@ -1889,7 +2029,9 @@ function calculateArea(){
         area =
             a * a;
 
-    }else if(type === "rectangle"){
+    }
+
+    else if(type === "rectangle"){
 
         if(!Number.isFinite(b)){
 
@@ -1902,12 +2044,16 @@ function calculateArea(){
         area =
             a * b;
 
-    }else if(type === "circle"){
+    }
+
+    else if(type === "circle"){
 
         area =
             Math.PI * a * a;
 
-    }else if(type === "triangle"){
+    }
+
+    else if(type === "triangle"){
 
         if(!Number.isFinite(b)){
 
@@ -1924,145 +2070,152 @@ function calculateArea(){
 
 
     result.textContent =
-        "مساحت: " + area;
+        "مساحت: " +
+        area;
 
 }
 
-
-/* =====================================================
-   SEARCH
-   ===================================================== */
-
-function searchTools(){
-
-    const query =
-        document
-            .getElementById("searchInput")
-            .value
-            .trim()
-            .toLowerCase();
-
-
-    const tools =
-        document.querySelectorAll(
-            ".tool.searchable"
-        );
-
-
-    tools.forEach(function(tool){
-
-        const name =
-            (
-                tool.dataset.name || ""
-            ).toLowerCase();
-
-
-        if(
-            !query ||
-            name.includes(query)
-        ){
-
-            tool.style.display =
-                "";
-
-        }else{
-
-            tool.style.display =
-                "none";
-
-        }
-
-    });
-
-}
 
 
 /* =====================================================
    CATEGORY
    ===================================================== */
 
+
 function showCategory(category){
 
-    document
+    const tools =
+        document.querySelectorAll(".tool");
+
+
+    tools.forEach(
+        tool => {
+
+            const toolCategory =
+                tool.dataset.category;
+
+
+            if(
+                category === toolCategory
+            ){
+
+                tool.style.display =
+                    "block";
+
+            }
+            else{
+
+                tool.style.display =
+                    "none";
+
+            }
+
+        }
+    );
+
+}
+
+
+
+/* =====================================================
+   SEARCH
+   ===================================================== */
+
+
+function searchTools(){
+
+    const query =
+        document
         .getElementById("searchInput")
-        .value = "";
+        .value
+        .trim()
+        .toLowerCase();
 
 
     const tools =
-        document.querySelectorAll(
-            ".tool.searchable"
-        );
+        document.querySelectorAll(".tool");
 
 
-    tools.forEach(function(tool){
+    tools.forEach(
+        tool => {
 
-        if(
-            category === "all" ||
-            tool.dataset.category === category
-        ){
+            const name =
+                (
+                    tool.dataset.name ||
+                    ""
+                ).toLowerCase();
 
-            tool.style.display =
-                "";
 
-        }else{
+            if(
+                name.includes(query)
+            ){
 
-            tool.style.display =
-                "none";
+                tool.style.display =
+                    "block";
+
+            }
+            else{
+
+                tool.style.display =
+                    "none";
+
+            }
 
         }
-
-    });
+    );
 
 }
+
 
 
 /* =====================================================
    HOME
    ===================================================== */
 
+
 function goHome(){
 
     document
         .getElementById("toolScreen")
-        .classList.add("hidden");
+        .classList
+        .add("hidden");
 
 
     document
         .getElementById("home")
-        .classList.remove("hidden");
+        .classList
+        .remove("hidden");
 
+
+    /*
+       نمایش دوباره همه ابزارها
+    */
 
     document
-        .getElementById("searchInput")
-        .value = "";
-
-
-    document
-        .querySelectorAll(".tool.searchable")
-        .forEach(function(tool){
-
-            tool.style.display = "";
-
-        });
+        .querySelectorAll(".tool")
+        .forEach(
+            tool => {
+                tool.style.display =
+                    "block";
+            }
+        );
 
 }
 
 
+
 /* =====================================================
-   DEBUG
+   STARTUP
    ===================================================== */
 
-console.log(
-    "AllCalc loaded successfully."
-);
 
 console.log(
-    "Tapsell plugin:",
-    TapsellPlugin
+    "AllCalc started."
 );
 
 
 </script>
 
 </body>
+
     </html>
